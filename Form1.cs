@@ -68,7 +68,7 @@ namespace CycleCode
             string m = tbx_coder_in.Text;
             string e_m = m + string.Join("", Enumerable.Repeat("0", 24));
             string ost = MainFunc(e_m, poly);
-            tbx_info.Text += "Остаток деления: " + ost + s;
+            tbx_info.Text += "Остаток от деления: " + ost + s;
             tbx_coder_out.Text = m + ost;
             string t_m = m + ost;
 
@@ -98,7 +98,7 @@ namespace CycleCode
                 tbx_info.Text += "Сдвиг " + sdvig.ToString() + s;
                 tbx_info.Text += "Остаток " + ost.ToString() + s;
                 w = ost.Count(f => (f == '1'));
-                tbx_info.Text += "Мощность остатка " + w.ToString() + s; // кол-во едениц
+                tbx_info.Text += "Кол-во едениц " + w.ToString() + s; // кол-во едениц
 
 
                 if (w <= q) break;
@@ -108,7 +108,7 @@ namespace CycleCode
             
             ost = Xor("0" + t_m.Substring(t_m.Length - ost.Length), "0" + ost);
             string r_m = t_m.Substring(0, t_m.Length - ost.Length) + ost;
-            tbx_info.Text += "Восстановленное сообщение " + r_m + s;
+            tbx_info.Text += "Раскодированное сообщение" + r_m + s;
             if (sdvig > 0)
             {
                 string tmp2 = r_m.Substring(0, r_m.Length - sdvig);
@@ -125,6 +125,6 @@ namespace CycleCode
 
         }
 
-      
+    
     }
 }
