@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 
 namespace CycleCode
@@ -16,16 +17,18 @@ namespace CycleCode
         public Form1()
         {
             InitializeComponent();
+
         }
         private void button1_Click(object sender, EventArgs e)
         {
+            String s = Environment.NewLine;
             tbx_coder_out.Clear();
             tbx_decoder_in.Clear();
             tbx_decoder_out.Clear();
             tbx_info.Clear();
             tbx_errors.Text = "errors bits:";
 
-            string Xor(string a, string b)
+            string Xor(string a, string b)               // хорошо
             {
                 string result = "";
                 for (int i = 1; i < b.Length; i++)
@@ -37,104 +40,91 @@ namespace CycleCode
                 }
                 return result;
             }
+            //010000010110010011100000
 
-            string Mod2Div2(string dividend, string divisor) 
+            string MainFunc(string d1, string d2)
             {
-                for (int i = 0; i < (dividend.Length - divisor.Length + 1); i++) 
-                    if (dividend[i] == '1')
+                for (int i = 0; i < (d1.Length - d2.Length + 1); i++)
+                    if (d1[i] == '1')
                     {
-                        string tmp = dividend.Substring(0, i);
-                        for (int j = 0; j < divisor.Length; j++)
-                            if (divisor[j] == dividend[i + j])
-                                tmp += "0";
+                        string tmp = d1.Substring(0, i);
+                        for (int j = 0; j < d2.Length; j++)
+                        {
+                            if (d2[j] == d1[i + j]) { tmp += "0"; }
                             else tmp += "1";
-                        tmp += dividend.Substring(i + divisor.Length);
-                        dividend = tmp;
+                        }
+                        tmp += d1.Substring(i + d2.Length);
+                        d1 = tmp;
                     }
-                return dividend.Substring((dividend.Length - divisor.Length + 1));
+                return d1.Substring((d1.Length - d2.Length + 1));
             }
 
-            string test = Mod2Div2("1000000000000001", "11010001");  // не используемая переменная 1.11
-            string poly = "1110110110010011101110111";  // 2.11
-            
-            tbx_info.Text += "Полином " + poly + Environment.NewLine;
-
-
-            
+            string test = MainFunc("1000000000000001", "11101101001");  
+            string poly = "1011";
+            tbx_info.Text += "Тест " + test + s;
+            tbx_info.Text += "Полином " + poly + s;
 
             int d0 = poly.Count(f => (f == '1'));
-            
-
-
-            string message;
-            message = tbx_coder_in.Text;
-            
-            string ext_message = message + string.Join("", Enumerable.Repeat("0", poly.Length - 1));
-
-            
-            string rest = Mod2Div2(ext_message, poly);
-
-            tbx_info.Text += "Остаток деления: " + rest + Environment.NewLine;
-
-            string coded_message = message + rest;
-            tbx_coder_out.Text = coded_message;
-
-            string transmitted_message = coded_message;
+            string m = tbx_coder_in.Text;
+            string e_m = m + string.Join("", Enumerable.Repeat("0", 24));
+            string ost = MainFunc(e_m, poly);
+            tbx_info.Text += "Остаток деления: " + ost + s;
+            tbx_coder_out.Text = m + ost;
+            string t_m = m + ost;
 
             var nums = new List<int>();
-            for (int i = 0; i < transmitted_message.Length; i++) nums.Add(i);
-            
-            Random rand = new Random();
+            for (int i = 0; i < t_m.Length; i++) nums.Add(i);
+            Random rnd = new Random();
             int q = 2;
-            int err_nums = rand.Next(3);
-           
+            int err_nums = rnd.Next(3);
             for (int j = 0; j < err_nums; j++)
             {
-                int err_bit_no = nums[rand.Next(0, nums.Count())];
-                tbx_errors.Text += Environment.NewLine + (transmitted_message.Length - err_bit_no - 1).ToString();
-
+                int err_bit_no = nums[rnd.Next(0, nums.Count())];
+                tbx_errors.Text += s + (t_m.Length - err_bit_no - 1).ToString();
                 nums.Remove(err_bit_no);
-                if (transmitted_message[err_bit_no] == '0')
-                    transmitted_message = transmitted_message.Substring(0, err_bit_no) + "1" + transmitted_message.Substring(err_bit_no + 1);
+                if (t_m[err_bit_no] == '0')
+                    t_m = t_m.Substring(0, err_bit_no) + "1" + t_m.Substring(err_bit_no + 1);
                 else
-                    transmitted_message = transmitted_message.Substring(0, err_bit_no) + "0" + transmitted_message.Substring(err_bit_no + 1);
-
+                    t_m = t_m.Substring(0, err_bit_no) + "0" + t_m.Substring(err_bit_no + 1);
             }
-
-            tbx_decoder_in.Text = transmitted_message;
-            tbx_info.Text += "Приемник " + Environment.NewLine;
+            
+            tbx_decoder_in.Text = t_m;
+            tbx_info.Text += "Приемник " + s;
             int w;
-            int shift_count;
-            for (shift_count = 0; shift_count < transmitted_message.Length; shift_count++)
+            int sdvig;
+            for (sdvig = 0; sdvig < t_m.Length; sdvig++)
             {
-                rest = Mod2Div2(transmitted_message, poly);
-                tbx_info.Text += "Сдвиг " + shift_count.ToString() + Environment.NewLine;
-                tbx_info.Text += "Остаток " + rest.ToString() + Environment.NewLine;
-                w = rest.Count(f => (f == '1'));
-                tbx_info.Text += "Мощность остатка " + w.ToString() + Environment.NewLine;
+                ost = MainFunc(t_m, poly);
+                tbx_info.Text += "Сдвиг " + sdvig.ToString() + s;
+                tbx_info.Text += "Остаток " + ost.ToString() + s;
+                w = ost.Count(f => (f == '1'));
+                tbx_info.Text += "Мощность остатка " + w.ToString() + s; // кол-во едениц
+
 
                 if (w <= q) break;
-                transmitted_message = transmitted_message.Substring(1) + transmitted_message.Substring(0, 1);
+                t_m = t_m.Substring(1) + t_m.Substring(0, 1);
             }
 
             
-            rest = Xor("0" + transmitted_message.Substring(transmitted_message.Length - rest.Length), "0" + rest);
-            string restored_message = transmitted_message.Substring(0, transmitted_message.Length - rest.Length) + rest;
-            tbx_info.Text += "Восстановленное сообщение " + restored_message + Environment.NewLine;
-            if (shift_count > 0)
+            ost = Xor("0" + t_m.Substring(t_m.Length - ost.Length), "0" + ost);
+            string r_m = t_m.Substring(0, t_m.Length - ost.Length) + ost;
+            tbx_info.Text += "Восстановленное сообщение " + r_m + s;
+            if (sdvig > 0)
             {
-                string tmp2 = restored_message.Substring(0, restored_message.Length - shift_count);
-                restored_message = restored_message.Substring(restored_message.Length - shift_count) + restored_message.Substring(0 ,restored_message.Length - shift_count);
-                tbx_info.Text += "Сдвигаем обратно на " + shift_count.ToString() + Environment.NewLine;
+                string tmp2 = r_m.Substring(0, r_m.Length - sdvig);
+                r_m = r_m.Substring(r_m.Length - sdvig) + r_m.Substring(0 ,r_m.Length - sdvig);
+                tbx_info.Text += "Сдвигаем обратно на " + sdvig.ToString() + s;
             }
 
-            restored_message = restored_message.Substring(0, message.Length);
-            tbx_decoder_out.Text = restored_message;
+            r_m = r_m.Substring(0, m.Length);
+            tbx_decoder_out.Text = r_m;
 
-            if (restored_message == message) tbx_info.Text += "УСПЕШНО !!!" + Environment.NewLine;
-            else tbx_info.Text += "ОШИБКА";
+            if (r_m == m) tbx_info.Text += "SUCCESSFULLY" + s;
+            else tbx_info.Text += "ERROR";
 
 
         }
+
+      
     }
 }
