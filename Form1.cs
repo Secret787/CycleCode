@@ -54,8 +54,8 @@ namespace CycleCode
                 return dividend.Substring((dividend.Length - divisor.Length + 1));
             }
 
-            string test = Mod2Div2("1000000000000001", "11010001");  // не используемая переменная
-            string poly = "1110110110010011101110111";
+            string test = Mod2Div2("1000000000000001", "11010001");  // не используемая переменная 1.11
+            string poly = "1110110110010011101110111";  // 2.11
             
             tbx_info.Text += "Полином " + poly + Environment.NewLine;
 
